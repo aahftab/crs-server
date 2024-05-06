@@ -1,0 +1,33 @@
+{
+  "name": "crs-server",
+  "version": "1.0.0",
+  "description": "Basic implementation of Crime Reporting System Server",
+  "main": "app.js",
+  "dependencies": {
+    "base64url": "^3.0.1",
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "mongoose": "^8.3.3",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aahftab/crs-server.git"
+  },
+  "author": "aahftab",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aahftab/crs-server/issues"
+  },
+  "homepage": "https://github.com/aahftab/crs-server#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

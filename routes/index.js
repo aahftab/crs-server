@@ -1,98 +1,98 @@
-const router = require('express').Router();
-const passport = require('passport');
-const genPassword = require('../lib/passwordUtils').genPassword;
-const connection = require('../config/database');
+const router = require("express").Router();
+const passport = require("passport");
+const genPassword = require("../lib/passwordUtils").genPassword;
+const connection = require("../config/database");
 const User = connection.models.User;
-const isAuth = require('./authMiddleware').isAuth;
-const isAdmin = require('./authMiddleware').isAdmin;
+const Complaint = connection.models.Complaint;
+const isAuth = require("./authMiddleware").isAuth;
+const isAdmin = require("./authMiddleware").isAdmin;
 
 /**
  * -------------- POST ROUTES ----------------
  */
 
- router.post('/login', passport.authenticate('local', { failureRedirect: '/login-failure', successRedirect: 'login-success' }));
+router.post(
+  "/login",
+  passport.authenticate("local", {
+    failureRedirect: "/login-failure",
+    successRedirect: "/login-success",
+  })
+);
 
- router.post('/register', (req, res, next) => {
-    console.log(req.body);
-    const saltHash = genPassword(req.body.pw);
-    
-    const salt = saltHash.salt;
-    const hash = saltHash.hash;
+router.post("/register", (req, res, next) => {
+  console.log(req.body);
+  const saltHash = genPassword(req.body.pw);
 
-    const newUser = new User({
-        username: req.body.uname,
-        hash: hash,
-        salt: salt,
-        admin: true
-    });
+  const salt = saltHash.salt;
+  const hash = saltHash.hash;
 
-    newUser.save()
-        .then((user) => {
-            console.log(user);
-        });
-    console.log('User created \n', newUser);
-    // res.redirect('/login');
- });
+  const newUser = new User({
+    username: req.body.uname,
+    hash: hash,
+    salt: salt,
+    admin: false,
+  });
 
-
- /**
- * -------------- GET ROUTES ----------------
- */
-
-router.get('/', (req, res, next) => {
-    res.send('<h1>Home</h1><p>Please <a href="/register">register</a></p>');
+  newUser.save().then((user) => {
+    console.log(user);
+  });
+  console.log("User created \n", newUser);
+  res.json({ msg: "User created" });
+});
+function createComplaint(req, res, next) {
+  req.body.username = req.user.username;
+  next();
+}
+router.post("/registerComplaint", isAuth, createComplaint, (req, res, next) => {
+  const newComplaint = new Complaint(req.body);
+  newComplaint.save().then((complaint) => {
+    console.log(complaint);
+  });
 });
 
-// When you visit http://localhost:3000/login, you will see "Login Page"
-router.get('/login', (req, res, next) => {
-   
-    const form = '<h1>Login Page</h1><form method="POST" action="/login">\
-    Enter Username:<br><input type="text" name="uname">\
-    <br>Enter Password:<br><input type="password" name="pw">\
-    <br><br><input type="submit" value="Submit"></form>';
-
-    res.send(form);
-
+router.get("/fetchComplaints", isAuth, async(req, res, next) => {
+ await Complaint.find({ username: req.user.username }).then((err, complaints) => {
+    if (err) {
+      console.error(err);
+      res.send(err);
+    }
+    else{
+      res.send(complaints);
+    }
+  });
+});
+router.get("/protected-route", isAuth, (req, res, next) => {
+  res.send("You made it to the route.");
+  console.log("protected route");
+  console.log(req.session);
+  console.log(req.user);
 });
 
-// When you visit http://localhost:3000/register, you will see "Register Page"
-router.get('/register', (req, res, next) => {
-
-    const form = '<h1>Register Page</h1><form method="post" action="register">\
-                    Enter Username:<br><input type="text" name="uname">\
-                    <br>Enter Password:<br><input type="password" name="pw">\
-                    <br><br><input type="submit" value="Submit"></form>';
-
-    res.send(form);
-    
+router.get("/admin-route", isAdmin, (req, res, next) => {
+  res.send("You made it to the admin route.");
 });
 
-/**
- * Lookup how to authenticate users on routes with Local Strategy
- * Google Search: "How to use Express Passport Local Strategy"
- * 
- * Also, look up what behaviour express session has without a maxage set
- */
-router.get('/protected-route', isAuth, (req, res, next) => {
-    res.send('You made it to the route.');
+router.get("/logout", function (req, res, next) {
+  req.logout(function (err) {
+    if (err) {
+      console.error(err);
+      res.send(err);
+    } else {
+      res.status(200).clearCookie("connect.sid", {
+        path: "/",
+      });
+      req.session.destroy(function (err) {
+        res.send("You have been logged out.");
+      });
+    }
+  });
+});
+router.get("/login-success", (req, res, next) => {
+  res.send("Login Successful");
 });
 
-router.get('/admin-route', isAdmin, (req, res, next) => {
-    res.send('You made it to the admin route.');
-});
-
-// Visiting this route logs the user out
-router.get('/logout', (req, res, next) => {
-    req.logout();
-    res.redirect('/protected-route');
-});
-
-router.get('/login-success', (req, res, next) => {
-    res.send('<p>You successfully logged in. --> <a href="/protected-route">Go to protected route</a></p>');
-});
-
-router.get('/login-failure', (req, res, next) => {
-    res.send('You entered the wrong password.');
+router.get("/login-failure", (req, res, next) => {
+  res.send("You entered the wrong password.");
 });
 
 module.exports = router;

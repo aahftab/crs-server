@@ -18,7 +18,10 @@ require("dotenv").config();
 
 // Create the Express application
 var app = express();
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 

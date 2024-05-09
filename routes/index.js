@@ -51,14 +51,8 @@ router.post("/registerComplaint", isAuth, createComplaint, (req, res, next) => {
 });
 
 router.get("/fetchComplaints", isAuth, async(req, res, next) => {
- await Complaint.find({ username: req.user.username }).then((err, complaints) => {
-    if (err) {
-      console.error(err);
-      res.send(err);
-    }
-    else{
+ await Complaint.find({ username: req.user.username }).then((complaints) => {
       res.send(complaints);
-    }
   });
 });
 router.get("/protected-route", isAuth, (req, res, next) => {

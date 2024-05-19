@@ -24,6 +24,7 @@ const UserSchema = new mongoose.Schema({
   salt: String,
   admin: Boolean,
 });
+
 const ComplaintSchema = new mongoose.Schema({
   username: String,
   email: String,
@@ -39,6 +40,16 @@ const ComplaintSchema = new mongoose.Schema({
   description: String,
   suspects: [{ suspectName: String, suspectAddress: String }],
 });
+
+const NewsSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  date: Date,
+  imageName: String,
+});
+
+const News = connection.model("News", NewsSchema);
+
 const Complaint = connection.model("Complaint", ComplaintSchema);
 
 const User = connection.model("User", UserSchema);

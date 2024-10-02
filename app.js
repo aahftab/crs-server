@@ -32,7 +32,9 @@ app.use(express.static(path.join(__dirname, '/uploads')));
  * -------------- SESSION SETUP ----------------
  */
 function myFunction() {
-  console.log(connection);
+  console.log("host: " + connection.host);
+  console.log("port: " + connection.port);
+  console.log("name: " + connection.name);
   app.use(
     session({
       secret: process.env.SECRET,

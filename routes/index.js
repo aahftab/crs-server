@@ -70,7 +70,7 @@ router.post("/registerComplaint", isAuth, (req, res, next) => {
     });
 });
 
-router.post("/postNews", upload.single("image"), isAdmin, (req, res, next) => {
+router.post("/postNews",  isAdmin, upload.single("image"), (req, res, next) => {
   const newNews = new News({
     title: req.body.title,
     description: req.body.description,
